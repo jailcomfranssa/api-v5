@@ -1,0 +1,31 @@
+## 📁 Folder Structure
+
+```code
+
+💻 API
+├── 📁prisma
+│   │
+│   ├── 🗂️migrations
+│   │
+│   └── 📜schema.prisma
+│
+├── 📁src
+│   │
+│   ├── 📁lib
+│   │   │
+│   │   └── 📜prisma.ts
+│   │
+│   ├── 📜app.ts
+│   │
+│   └── 📜server.ts
+│
+├── 📜package-lock.json
+│
+├── 📜package.json
+│
+├── 📜prisma.config.ts
+│
+├── 📜README.md
+│
+└── 📜tsconfig.json
+```
