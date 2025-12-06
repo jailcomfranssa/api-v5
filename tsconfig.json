@@ -1,10 +1,31 @@
 {
     "compilerOptions": {
-        "module": "ESNext",
+        /* Diretórios */
+        "rootDir": "./src",
+        "outDir": "./dist",
+
+        /* Ambiente */
+        "target": "ES2022",
+        "module": "CommonJS",
         "moduleResolution": "node",
-        "target": "ES2023",
+
+        /* Tipos */
+        "types": ["node"],
+
+        /* Segurança */
         "strict": true,
+        "forceConsistentCasingInFileNames": true,
+
+        /* Compatibilidade */
         "esModuleInterop": true,
-        "ignoreDeprecations": "5.0"
-    }
+        "skipLibCheck": true,
+
+        /* Debug */
+        "sourceMap": true,
+
+        /* Build */
+        "removeComments": true
+    },
+    "include": ["src"],
+    "exclude": ["node_modules", "dist"]
 }
