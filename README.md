@@ -19,6 +19,8 @@
 │   │
 │   └── 📜server.ts
 │
+├── 📜nodemon.json
+│
 ├── 📜package-lock.json
 │
 ├── 📜package.json
