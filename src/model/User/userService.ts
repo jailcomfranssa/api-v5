@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { UserRepository } from "./userRepository";
 import { AppError } from "../../errors/AppError";
 import { User } from "../../../generated/prisma/client";
+import { PaginationQuery } from "../../types/pagination";
 
 export class UserService {
     private userRepository = new UserRepository();
@@ -35,8 +36,39 @@ export class UserService {
         return user;
     }
     // 🔹 Listar usuários
-    async findAll(): Promise<User[]> {
-        return this.userRepository.findAll();
+    async findAll(params: PaginationQuery) {
+        const { page, limit, search, orderBy, order } = params;
+
+        const skip = (page - 1) * limit;
+
+        const where = search
+            ? {
+                  OR: [
+                      { name: { contains: search, mode: "insensitive" } },
+                      { email: { contains: search, mode: "insensitive" } },
+                  ],
+              }
+            : {};
+
+        const [total, users] = await Promise.all([
+            this.userRepository.count(where),
+            this.userRepository.findAll({
+                skip,
+                take: limit,
+                where,
+                orderBy: { [orderBy]: order },
+            }),
+        ]);
+
+        return {
+            data: users,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+            },
+        };
     }
 
     // 🔹 Atualizar usuário

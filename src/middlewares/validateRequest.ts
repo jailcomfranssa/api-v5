@@ -1,71 +1,111 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, RequestHandler } from "express";
 import Joi from "joi";
 
-interface ValidationSchemas {
-    body?: Joi.ObjectSchema;
-    query?: Joi.ObjectSchema;
-    params?: Joi.ObjectSchema;
+/**
+ * Tipagem do parâmetro aceito pelo middleware
+ */
+export interface ValidationSchemas {
+    body?: Joi.ObjectSchema<any>;
+    query?: Joi.ObjectSchema<any>;
+    params?: Joi.ObjectSchema<any>;
 }
 
 /**
- * Middleware global de validação usando Joi
- * Suporta body, query, params
- * Retorna erros no padrão RFC 7807
+ * Gera título a partir do status (usado no RFC7807)
  */
-export const validateRequest = (schemas: ValidationSchemas) => {
+const getTitleByStatus = (status: number): string => {
+    switch (status) {
+        case 400:
+            return "Bad Request";
+        case 401:
+            return "Unauthorized";
+        case 403:
+            return "Forbidden";
+        case 404:
+            return "Not Found";
+        case 409:
+            return "Conflict";
+        case 422:
+            return "Unprocessable Entity";
+        default:
+            return "Error";
+    }
+};
+
+/**
+ * validateRequest
+ * - Recebe um objeto com schemas Joi: { body?, query?, params? }
+ * - Valida cada parte da request (params, query, body)
+ * - Em caso de erro responde com RFC 7807 (type, title, status, detail, errors)
+ * - Em caso de sucesso chama next()
+ */
+export const validateRequest = (schemas: ValidationSchemas): RequestHandler => {
     return (req: Request, res: Response, next: NextFunction) => {
-        const validationErrors: Record<string, any> = {};
+        const validationErrors: Record<string, string[]> = {};
 
-        // 🔹 Validar body
-        if (schemas.body) {
-            const { error } = schemas.body.validate(req.body, {
-                abortEarly: false,
-                stripUnknown: true, // remove campos não permitidos
-            });
-            if (error) {
-                error.details.forEach((err) => {
-                    validationErrors[err.path.join(".")] = err.message;
-                });
-            }
-        }
+        const opts: Joi.ValidationOptions = {
+            abortEarly: false, // coletar todos os erros
+            stripUnknown: true, // remove chaves não especificadas no schema
+            allowUnknown: false,
+            convert: true,
+        };
 
-        // 🔹 Validar query
-        if (schemas.query) {
-            const { error } = schemas.query.validate(req.query, {
-                abortEarly: false,
-                stripUnknown: true,
-            });
-            if (error) {
-                error.details.forEach((err) => {
-                    validationErrors[err.path.join(".")] = err.message;
-                });
-            }
-        }
-
-        // 🔹 Validar params
+        // Params
         if (schemas.params) {
-            const { error } = schemas.params.validate(req.params, {
-                abortEarly: false,
-                stripUnknown: true,
-            });
+            const { error, value } = schemas.params.validate(req.params, opts);
             if (error) {
-                error.details.forEach((err) => {
-                    validationErrors[err.path.join(".")] = err.message;
+                error.details.forEach((d) => {
+                    const key = d.path.join(".") || "params";
+                    validationErrors[key] = validationErrors[key] || [];
+                    validationErrors[key].push(d.message);
                 });
+            } else {
+                // apply sanitized values back to req.params
+                req.params = value;
             }
         }
 
-        // 🔥 Se houve erros → responder no padrão RFC 7807
+        // Query
+        if (schemas.query) {
+            const { error, value } = schemas.query.validate(req.query, opts);
+            if (error) {
+                error.details.forEach((d) => {
+                    const key = d.path.join(".") || "query";
+                    validationErrors[key] = validationErrors[key] || [];
+                    validationErrors[key].push(d.message);
+                });
+            } else {
+                req.query = value;
+            }
+        }
+
+        // Body
+        if (schemas.body) {
+            const { error, value } = schemas.body.validate(req.body, opts);
+            if (error) {
+                error.details.forEach((d) => {
+                    const key = d.path.join(".") || "body";
+                    validationErrors[key] = validationErrors[key] || [];
+                    validationErrors[key].push(d.message);
+                });
+            } else {
+                req.body = value;
+            }
+        }
+
+        // Se tiver erros => retornar RFC 7807 400
         if (Object.keys(validationErrors).length > 0) {
             return res.status(400).json({
-                type: "https://example.com/validation-error",
-                title: "Validation Error",
+                type: `https://httpstatuses.io/400`,
+                title: getTitleByStatus(400),
                 status: 400,
                 detail: "One or more validation errors occurred.",
-                errors: validationErrors,
+                errors: validationErrors, // cada campo -> array de mensagens
             });
         }
 
         return next();
     };
 };
+
+export default validateRequest;

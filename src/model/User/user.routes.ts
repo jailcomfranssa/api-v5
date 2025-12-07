@@ -6,6 +6,7 @@ import {
     updateUserSchema,
     listUserSchema,
     deleteUserSchema,
+    listUserQuerySchema,
 } from "../../schemas/user.schema";
 
 const routerUser = Router();
@@ -20,7 +21,11 @@ routerUser.post(
 );
 
 // Listar todos os usuários
-routerUser.get("/", userController.findAll);
+routerUser.get(
+    "/",
+    validateRequest({ query: listUserQuerySchema }),
+    userController.findAll
+);
 
 // Buscar usuário por ID
 routerUser.get(
@@ -32,7 +37,7 @@ routerUser.get(
 // Atualizar usuário
 routerUser.put(
     "/:id",
-    validateRequest({ body: updateUserSchema }),
+    validateRequest({ body: updateUserSchema, params: listUserSchema }),
     userController.update
 );
 

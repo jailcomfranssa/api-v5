@@ -2,6 +2,13 @@ import { prisma } from "../../lib/prisma";
 import { User } from "../../../generated/prisma/client";
 import { AppError } from "../../errors/AppError";
 
+interface FindAllOptions {
+    skip?: number;
+    take?: number;
+    where?: any;
+    orderBy?: any;
+}
+
 export class UserRepository {
     async create(
         data: Pick<User, "name" | "email" | "senha" | "telefone" | "role">
@@ -17,8 +24,21 @@ export class UserRepository {
         return prisma.user.findUnique({ where: { id } });
     }
 
-    async findAll(): Promise<User[]> {
-        return prisma.user.findMany();
+    /** 🔥 findAll com paginação, busca e ordenação */
+    async findAll(options?: FindAllOptions): Promise<User[]> {
+        const { skip, take, where, orderBy } = options || {};
+
+        return prisma.user.findMany({
+            skip,
+            take,
+            where,
+            orderBy,
+        });
+    }
+
+    /** 🔥 count para paginação */
+    async count(where: any = {}): Promise<number> {
+        return prisma.user.count({ where });
     }
 
     async update(

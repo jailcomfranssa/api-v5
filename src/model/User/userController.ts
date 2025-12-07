@@ -13,8 +13,23 @@ export class UserController {
 
     // 🔹 Listar todos
     findAll = asyncHandler(async (req: Request, res: Response) => {
-        const users = await this.userService.findAll();
-        return res.status(200).json(users);
+        const {
+            page = 1,
+            limit = 10,
+            search,
+            orderBy = "createdAt",
+            order = "desc",
+        } = req.query;
+
+        const result = await this.userService.findAll({
+            page: Number(page),
+            limit: Number(limit),
+            search: search ? String(search) : undefined,
+            orderBy: String(orderBy),
+            order: order as "asc" | "desc",
+        });
+
+        return res.status(200).json(result);
     });
 
     // 🔹 Buscar por ID
@@ -35,6 +50,8 @@ export class UserController {
     delete = asyncHandler(async (req: Request, res: Response) => {
         const id = Number(req.params.id);
         await this.userService.delete(id);
-        return res.status(204).send({"message": "Usuário deletado com sucesso"});
+        return res
+            .status(204)
+            .send({ message: "Usuário deletado com sucesso" });
     });
 }

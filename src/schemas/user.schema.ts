@@ -1,4 +1,5 @@
 import Joi from "joi";
+import { createPaginationSchema } from "./pagination.schema";
 
 const roleEnum = ["ADMIN", "FUNCIONARIO", "CLIENTE"];
 
@@ -68,4 +69,11 @@ export const listUserSchema = Joi.object({
         .valid("name", "email", "createdAt")
         .default("createdAt"),
     order: Joi.string().valid("asc", "desc").default("desc"),
+});
+
+// Para GET /users (list) — query com paginação
+export const listUserQuerySchema = createPaginationSchema({
+    defaultLimit: 10,
+    maxLimit: 100,
+    orderByFields: ["name", "email", "createdAt"],
 });
