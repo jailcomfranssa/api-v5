@@ -1,6 +1,6 @@
 import { prisma } from "../../lib/prisma";
 import { User } from "../../../generated/prisma/client";
-import { AppError } from "../../errors/AppError.js";
+import { AppError } from "../../errors/AppError";
 
 export class UserRepository {
     async create(

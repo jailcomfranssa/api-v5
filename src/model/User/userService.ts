@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
-import { UserRepository } from "./userRepository.js";
-import { AppError } from "../../errors/AppError.js";
+import { UserRepository } from "./userRepository";
+import { AppError } from "../../errors/AppError";
 import { User } from "../../../generated/prisma/client";
 
 export class UserService {
