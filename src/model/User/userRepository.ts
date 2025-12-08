@@ -10,21 +10,24 @@ interface FindAllOptions {
 }
 
 export class UserRepository {
+    // 🔹 Criar usuário
     async create(
         data: Pick<User, "name" | "email" | "senha" | "telefone" | "role">
     ): Promise<User> {
         return prisma.user.create({ data });
     }
 
+    // 🔹 Buscar por e-mail
     async findByEmail(email: string): Promise<User | null> {
         return prisma.user.findUnique({ where: { email } });
     }
 
+    // 🔹 Buscar por ID
     async findById(id: number): Promise<User | null> {
         return prisma.user.findUnique({ where: { id } });
     }
 
-    /** 🔥 findAll com paginação, busca e ordenação */
+    // 🔹 Listar usuários com paginação, busca e ordenação
     async findAll(options?: FindAllOptions): Promise<User[]> {
         const { skip, take, where, orderBy } = options || {};
 
@@ -36,11 +39,12 @@ export class UserRepository {
         });
     }
 
-    /** 🔥 count para paginação */
+    // 🔹 Contagem para paginação
     async count(where: any = {}): Promise<number> {
         return prisma.user.count({ where });
     }
 
+    // 🔹 Atualizar usuário
     async update(
         id: number,
         data: Partial<
@@ -48,8 +52,9 @@ export class UserRepository {
         >
     ): Promise<User> {
         const exists = await prisma.user.findUnique({ where: { id } });
+
         if (!exists) {
-            throw new AppError("User not found", 404);
+            throw new AppError("Usuário não encontrado.", 404);
         }
 
         return prisma.user.update({
@@ -58,11 +63,14 @@ export class UserRepository {
         });
     }
 
+    // 🔹 Deletar usuário
     async delete(id: number): Promise<User> {
         const exists = await prisma.user.findUnique({ where: { id } });
+
         if (!exists) {
-            throw new AppError("User not found", 404);
+            throw new AppError("Usuário não encontrado.", 404);
         }
+
         return prisma.user.delete({ where: { id } });
     }
 }

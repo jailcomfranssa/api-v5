@@ -4,13 +4,12 @@ import { validateRequest } from "../../middlewares/validateRequest";
 import {
     createUserSchema,
     updateUserSchema,
-    listUserSchema,
     deleteUserSchema,
     listUserQuerySchema,
 } from "../../schemas/user.schema";
+import { idParamSchema } from "../../schemas/common.schema"; // ⬅ Novo
 
 const routerUser = Router();
-
 const userController = new UserController();
 
 // Criar usuário
@@ -20,7 +19,7 @@ routerUser.post(
     userController.create
 );
 
-// Listar todos os usuários
+// Listar usuários com paginação e filtros
 routerUser.get(
     "/",
     validateRequest({ query: listUserQuerySchema }),
@@ -30,21 +29,21 @@ routerUser.get(
 // Buscar usuário por ID
 routerUser.get(
     "/:id",
-    validateRequest({ params: listUserSchema }),
+    validateRequest({ params: idParamSchema }),
     userController.findById
 );
 
 // Atualizar usuário
 routerUser.put(
     "/:id",
-    validateRequest({ body: updateUserSchema, params: listUserSchema }),
+    validateRequest({ params: idParamSchema, body: updateUserSchema }),
     userController.update
 );
 
 // Deletar usuário
 routerUser.delete(
     "/:id",
-    validateRequest({ params: deleteUserSchema }),
+    validateRequest({ params: idParamSchema }),
     userController.delete
 );
 

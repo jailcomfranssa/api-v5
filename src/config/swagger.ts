@@ -18,7 +18,7 @@ const swaggerOptions = {
             },
         ],
     },
-    apis: ["./src/routes/*.ts"], // Path to your future route files
+    apis: ["./src/routes/*.ts", "./src/modules/**/**/*.ts"],  // Path to your future route files
 };
 
 const swaggerSpec = swaggerJSDoc(swaggerOptions);

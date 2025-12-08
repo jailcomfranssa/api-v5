@@ -7,25 +7,26 @@ export interface ValidationSchemas {
     params?: Joi.ObjectSchema<any>;
 }
 
+/**
+ * Gera título baseado no status HTTP (RFC7807)
+ */
 const getTitleByStatus = (status: number): string => {
-    switch (status) {
-        case 400:
-            return "Bad Request";
-        case 401:
-            return "Unauthorized";
-        case 403:
-            return "Forbidden";
-        case 404:
-            return "Not Found";
-        case 409:
-            return "Conflict";
-        case 422:
-            return "Unprocessable Entity";
-        default:
-            return "Error";
-    }
+    const map: Record<number, string> = {
+        400: "Bad Request",
+        401: "Unauthorized",
+        403: "Forbidden",
+        404: "Not Found",
+        409: "Conflict",
+        422: "Unprocessable Entity",
+    };
+
+    return map[status] ?? "Error";
 };
 
+/**
+ * Middleware de validação universal (params, query, body)
+ * Com suporte a RFC7807
+ */
 export const validateRequest = (schemas: ValidationSchemas): RequestHandler => {
     return (req: Request, res: Response, next: NextFunction) => {
         const validationErrors: Record<string, string[]> = {};
@@ -37,55 +38,70 @@ export const validateRequest = (schemas: ValidationSchemas): RequestHandler => {
             convert: true,
         };
 
-        // 🔹 Params
+        // -----------------------------
+        // 1. PARAMS
+        // -----------------------------
         if (schemas.params) {
             const { error, value } = schemas.params.validate(req.params, opts);
 
             if (error) {
                 error.details.forEach((d) => {
                     const key = d.path.join(".") || "params";
-                    validationErrors[key] = validationErrors[key] || [];
+                    validationErrors[key] ??= [];
                     validationErrors[key].push(d.message);
                 });
             } else {
-                Object.assign(req.params, value); // ✔️ CORRETO
+                // ⚠️ CORRETO: somente substituir as chaves, não o objeto inteiro
+                for (const key of Object.keys(req.params)) delete req.params[key];
+                Object.assign(req.params, value);
             }
         }
 
-        // 🔹 Query
+        // -----------------------------
+        // 2. QUERY
+        // -----------------------------
         if (schemas.query) {
             const { error, value } = schemas.query.validate(req.query, opts);
 
             if (error) {
                 error.details.forEach((d) => {
                     const key = d.path.join(".") || "query";
-                    validationErrors[key] = validationErrors[key] || [];
+                    validationErrors[key] ??= [];
                     validationErrors[key].push(d.message);
                 });
             } else {
-                Object.assign(req.query, value); // ✔️ CORRETO
+                // ⚠️ IMPORTANTE: req.query pode ser imutável em alguns drivers
+                Object.keys(req.query).forEach((k) => delete (req.query as any)[k]);
+                Object.assign(req.query, value);
             }
         }
 
-        // 🔹 Body
+        // -----------------------------
+        // 3. BODY
+        // -----------------------------
         if (schemas.body) {
             const { error, value } = schemas.body.validate(req.body, opts);
 
             if (error) {
                 error.details.forEach((d) => {
                     const key = d.path.join(".") || "body";
-                    validationErrors[key] = validationErrors[key] || [];
+                    validationErrors[key] ??= [];
                     validationErrors[key].push(d.message);
                 });
             } else {
-                Object.assign(req.body, value); // ✔️ CORRETO
+                if (!req.body || typeof req.body !== "object") {
+                    req.body = {};
+                }
+                Object.assign(req.body, value);
             }
         }
 
-        // 🔥 Se existe algum erro → retornar RFC7807
+        // -----------------------------
+        // SE EXISTEM ERROS — RFC7807
+        // -----------------------------
         if (Object.keys(validationErrors).length > 0) {
             return res.status(400).json({
-                type: `https://httpstatuses.io/400`,
+                type: "https://httpstatuses.io/400",
                 title: getTitleByStatus(400),
                 status: 400,
                 detail: "Erros de validação encontrados.",

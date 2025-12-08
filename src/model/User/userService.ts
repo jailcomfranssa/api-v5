@@ -7,6 +7,7 @@ import { PaginationQuery } from "../../types/pagination";
 export class UserService {
     private userRepository = new UserRepository();
 
+    // 🔹 Criar usuário
     async create(data: {
         name: string;
         email: string;
@@ -16,8 +17,9 @@ export class UserService {
     }): Promise<User> {
         const userExists = await this.userRepository.findByEmail(data.email);
         if (userExists) {
-            throw new AppError("E-mail já cadastrado", 409);
+            throw new AppError("O e-mail informado já está cadastrado.", 409);
         }
+
         const hashedPassword = await bcrypt.hash(data.senha, 10);
 
         return this.userRepository.create({
@@ -27,15 +29,18 @@ export class UserService {
         });
     }
 
-    // 🔹 Buscar por ID
+    // 🔹 Buscar usuário por ID
     async findById(id: number): Promise<User> {
         const user = await this.userRepository.findById(id);
+
         if (!user) {
-            throw new AppError("Usuário não encontrado", 404);
+            throw new AppError("Usuário não encontrado.", 404);
         }
+
         return user;
     }
-    // 🔹 Listar usuários
+
+    // 🔹 Listar usuários (com paginação e filtro)
     async findAll(params: PaginationQuery) {
         const { page, limit, search, orderBy, order } = params;
 
@@ -83,21 +88,23 @@ export class UserService {
         }>
     ): Promise<User> {
         const user = await this.userRepository.findById(id);
+
         if (!user) {
-            throw new AppError("Usuário não encontrado", 404);
+            throw new AppError("Usuário não encontrado.", 404);
         }
 
-        // Verifica e-mail duplicado se email for atualizado
+        // Verificar se o e-mail já pertence a outro usuário
         if (data.email && data.email !== user.email) {
             const emailExists = await this.userRepository.findByEmail(
                 data.email
             );
+
             if (emailExists) {
-                throw new AppError("E-mail já está em uso", 409);
+                throw new AppError("O e-mail informado já está em uso.", 409);
             }
         }
 
-        // Se senha enviada, faz hash. Se não, mantém senha atual.
+        // Atualiza senha somente se enviada
         const updateData = {
             ...data,
             senha: data.senha ? await bcrypt.hash(data.senha, 10) : user.senha,
@@ -105,11 +112,13 @@ export class UserService {
 
         return this.userRepository.update(id, updateData);
     }
+
     // 🔹 Deletar usuário
     async delete(id: number): Promise<void> {
         const user = await this.userRepository.findById(id);
+
         if (!user) {
-            throw new AppError("Usuário não encontrado", 404);
+            throw new AppError("Usuário não encontrado.", 404);
         }
 
         await this.userRepository.delete(id);
