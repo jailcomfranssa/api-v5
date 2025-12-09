@@ -3,7 +3,8 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import logger from "./config/logger";
-import { setupSwagger } from "./config/swagger";
+import swaggerUi from "swagger-ui-express";
+import { swaggerDocs } from "./docs";
 import { errorHandler } from "./middlewares/errorHandler";
 import rootRoutes from "./routes";
 
@@ -25,7 +26,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Setup API Documentation
-setupSwagger(app);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Basic health check route
 app.get("/health", (req, res) => {
@@ -35,8 +36,7 @@ app.get("/health", (req, res) => {
 // 🧩 Todas as rotas da aplicação
 app.use("/api", rootRoutes);
 
-// Global error handler 
-app.use(errorHandler)
-
+// Global error handler
+app.use(errorHandler);
 
 export default app;
