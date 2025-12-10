@@ -39,7 +39,6 @@ export class UserRepository {
         });
     }
 
-    // 🔹 Contagem para paginação
     async count(where: any = {}): Promise<number> {
         return prisma.user.count({ where });
     }

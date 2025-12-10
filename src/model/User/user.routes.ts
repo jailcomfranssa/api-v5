@@ -7,43 +7,54 @@ import {
     deleteUserSchema,
     listUserQuerySchema,
 } from "../../schemas/user.schema";
-import { idParamSchema } from "../../schemas/common.schema"; // ⬅ Novo
+import { idParamSchema } from "../../schemas/common.schema";
+
+import { authMiddleware } from "../../middlewares/authMiddleware";
+import { authorizeRole } from "../../middlewares/authorizeRole";
+import { checkOwnership } from "../../middlewares/checkOwnership";
 
 const routerUser = Router();
 const userController = new UserController();
 
-// Criar usuário
+// Criar usuário (livre)
 routerUser.post(
     "/",
     validateRequest({ body: createUserSchema }),
     userController.create
 );
 
-// Listar usuários com paginação e filtros
+// Todas as rotas abaixo exigem token
+routerUser.use(authMiddleware);
+
+// Listar todos (somente ADMIN)
 routerUser.get(
     "/",
+    authorizeRole("ADMIN","FUNCIONARIO"),
     validateRequest({ query: listUserQuerySchema }),
     userController.findAll
 );
 
-// Buscar usuário por ID
+// Buscar por ID (dono OU ADMIN)
 routerUser.get(
     "/:id",
     validateRequest({ params: idParamSchema }),
+    checkOwnership(),
     userController.findById
 );
 
-// Atualizar usuário
+// Atualizar usuário (dono OU ADMIN)
 routerUser.put(
     "/:id",
     validateRequest({ params: idParamSchema, body: updateUserSchema }),
+    checkOwnership(),
     userController.update
 );
 
-// Deletar usuário
+// Deletar usuário (dono OU ADMIN)
 routerUser.delete(
     "/:id",
     validateRequest({ params: idParamSchema }),
+    checkOwnership(),
     userController.delete
 );
 

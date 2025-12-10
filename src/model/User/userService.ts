@@ -24,6 +24,7 @@ export class UserService {
 
         return this.userRepository.create({
             ...data,
+            role: "CLIENTE",
             senha: hashedPassword,
             telefone: data.telefone || null,
         });
@@ -41,19 +42,22 @@ export class UserService {
     }
 
     // 🔹 Listar usuários (com paginação e filtro)
-    async findAll(params: PaginationQuery) {
-        const { page, limit, search, orderBy, order } = params;
+    async findAll(params: any) {
+        const { page, limit, search, orderBy, order, filter } = params;
 
         const skip = (page - 1) * limit;
 
-        const where = search
-            ? {
-                  OR: [
-                      { name: { contains: search, mode: "insensitive" } },
-                      { email: { contains: search, mode: "insensitive" } },
-                  ],
-              }
-            : {};
+        const where: any = {
+            ...filter, //  ✅ entra primeiro
+        };
+
+        // se houver busca, adiciona OR
+        if (search) {
+            where.OR = [
+                { name: { contains: search, mode: "insensitive" } },
+                { email: { contains: search, mode: "insensitive" } },
+            ];
+        }
 
         const [total, users] = await Promise.all([
             this.userRepository.count(where),
@@ -85,12 +89,18 @@ export class UserService {
             senha: string;
             telefone?: string;
             role?: "ADMIN" | "FUNCIONARIO" | "CLIENTE";
-        }>
+        }>,
+        currentUserRole: string // 🔥 role de quem está autenticado
     ): Promise<User> {
         const user = await this.userRepository.findById(id);
 
         if (!user) {
             throw new AppError("Usuário não encontrado.", 404);
+        }
+
+        // 🔥 Somente ADMIN pode alterar a role
+        if (data.role && currentUserRole !== "ADMIN") {
+            throw new AppError("Somente ADMIN pode alterar o papel.", 403);
         }
 
         // Verificar se o e-mail já pertence a outro usuário

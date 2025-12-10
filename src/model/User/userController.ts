@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import asyncHandler from "../../middlewares/asyncHandler";
 import { UserService } from "./userService";
+import { AuthenticatedRequest } from "../../middlewares/authMiddleware";
+import { AppError } from "../../errors/AppError";
 
 export class UserController {
     private userService = new UserService();
@@ -12,25 +14,36 @@ export class UserController {
     });
 
     // 🔹 Listar usuários com paginação
-    findAll = asyncHandler(async (req: Request, res: Response) => {
-        const {
-            page = "1",
-            limit = "10",
-            search,
-            orderBy = "createdAt",
-            order = "desc",
-        } = req.query as Record<string, string>;
+    findAll = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const {
+        page = "1",
+        limit = "10",
+        search,
+        orderBy = "createdAt",
+        order = "desc",
+    } = req.query as Record<string, string>;
 
-        const result = await this.userService.findAll({
-            page: Number(page),
-            limit: Number(limit),
-            search: search || undefined,
-            orderBy,
-            order: order === "asc" ? "asc" : "desc",
-        });
+    const { role } = req.user!;
 
-        return res.status(200).json(result);
+    // filtro inicial vazio
+    let filter: any = {};
+
+    // Se for FUNCIONARIO, só vê CLIENTES
+    if (role === "FUNCIONARIO") {
+        filter = { role: "CLIENTE" };
+    }
+
+    const result = await this.userService.findAll({
+        filter, //  ✅ correto
+        page: Number(page),
+        limit: Number(limit),
+        search: search || undefined,
+        orderBy,
+        order,
     });
+
+    return res.status(200).json(result);
+});
 
     // 🔹 Buscar por ID
     findById = asyncHandler(async (req: Request, res: Response) => {
@@ -40,9 +53,19 @@ export class UserController {
     });
 
     // 🔹 Atualizar usuário
-    update = asyncHandler(async (req: Request, res: Response) => {
+    update = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
         const id = Number(req.params.id);
-        const user = await this.userService.update(id, req.body);
+
+        // 🔥 Regra aqui também (camada 1)
+        if (req.body.role && req.user?.role !== "ADMIN") {
+            throw new AppError("Somente ADMIN pode alterar o papel.", 403);
+        }
+
+        const user = await this.userService.update(
+            id,
+            req.body,
+            req.user!.role
+        );
         return res.status(200).json(user);
     });
 
