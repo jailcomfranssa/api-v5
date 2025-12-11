@@ -14,16 +14,54 @@ datasource db {
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
-  email          String @unique
-  senha          String
-  name           String
-  telefone       String?
-  role           Role      @default(CLIENTE)
+  id                     Int                   @id @default(autoincrement())
+  email                  String                @unique
+  senha                  String
+  name                   String
+  telefone               String?
+  role                   Role                  @default(CLIENTE)
 
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  
+  // relacionamento inverso (1:1)
+  clienteCadastro        ClienteCadastro?      @relation("UserToCliente")
+  funcionarioCadastro    FuncionarioCadastro?  @relation("UserToFuncionario")
+
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+}
+
+model ClienteCadastro {
+  id               Int      @id @default(autoincrement())
+  cpf              String   @unique @db.VarChar(11)
+  rg               String?
+  telefone         String?
+  dataNascimento   DateTime?
+
+  //usuario 1:1
+  userId           Int      @unique
+  user             User     @relation("UserToCliente", fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@map("clientes")
+}
+
+model FuncionarioCadastro {
+  id             Int      @id @default(autoincrement())
+  cpf            String   @unique @db.VarChar(11)
+  cargo          String
+  telefone       String?
+  salario        Decimal  @db.Decimal(10, 2)
+  dataAdmissao   DateTime
+
+  //usuario 1:1
+  userId         Int      @unique
+  user           User     @relation("UserToFuncionario", fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("funcionarios")
 }
 
 enum Role {
@@ -31,5 +69,6 @@ enum Role {
   FUNCIONARIO
   CLIENTE
 }
+
 
 //npx tsc --noEmit
