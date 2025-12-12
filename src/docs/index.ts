@@ -4,6 +4,9 @@ import { authSchema } from "./components/auth.schema";
 import { userPaths } from "./paths/user.paths";
 import { authPaths } from "./paths/auth.paths";
 
+import { funcionarioSchema } from "./components/funcionario.schema";
+import { funcionarioPaths } from "./paths/funcionario.paths";
+
 export const swaggerDocs = {
     openapi: "3.0.0",
     info: {
@@ -22,6 +25,7 @@ export const swaggerDocs = {
     paths: {
         ...authPaths,
         ...userPaths,
+        ...funcionarioPaths,
     },
 
     // COMPONENTES
@@ -36,6 +40,7 @@ export const swaggerDocs = {
         schemas: {
             ...userSchema,
             ...authSchema,
+            ...funcionarioSchema,
         },
     },
 };
