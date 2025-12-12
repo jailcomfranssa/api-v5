@@ -1,0 +1,9 @@
+| Regra                                   | Implementada |
+| --------------------------------------- | ------------ |
+| Funcionário só cria o próprio cadastro  | ✔            |
+| Funcionário só edita o próprio cadastro | ✔            |
+| Funcionário só vê o próprio cadastro    | ✔            |
+| Funcionário nunca lista todos           | ✔            |
+| Admin pode tudo                         | ✔            |
+| Impedir duplicação de cadastro          | ✔            |
+| Telefone herdado do User se não enviado | ✔            |

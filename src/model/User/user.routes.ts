@@ -4,14 +4,13 @@ import { validateRequest } from "../../middlewares/validateRequest";
 import {
     createUserSchema,
     updateUserSchema,
-    deleteUserSchema,
-    listUserQuerySchema,
 } from "../../schemas/user.schema";
 import { idParamSchema } from "../../schemas/common.schema";
 
 import { authMiddleware } from "../../middlewares/authMiddleware";
 import { authorizeRole } from "../../middlewares/authorizeRole";
 import { checkOwnership } from "../../middlewares/checkOwnership";
+import { filtrosPaginaçãoSchema } from "../../schemas/filtrosPaginação.schema";
 
 const routerUser = Router();
 const userController = new UserController();
@@ -30,7 +29,7 @@ routerUser.use(authMiddleware);
 routerUser.get(
     "/",
     authorizeRole("ADMIN","FUNCIONARIO"),
-    validateRequest({ query: listUserQuerySchema }),
+    validateRequest({ query: filtrosPaginaçãoSchema }),
     userController.findAll
 );
 

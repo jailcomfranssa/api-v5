@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 import { UserRepository } from "../User/userRepository";
 import { AppError } from "../../errors/AppError";
+import { JwtPayloadCustom } from "../../types/jwt";
 
 dotenv.config();
 
@@ -86,9 +87,9 @@ export class AuthService {
     /**
      * Verifica se o token JWT é válido
      */
-    verifyToken(token: string) {
+    verifyToken(token: string): JwtPayloadCustom {
         try {
-            return jwt.verify(token, JWT_SECRET as Secret);
+            return jwt.verify(token, JWT_SECRET as Secret) as JwtPayloadCustom;
         } catch {
             throw new AppError("Token inválido ou expirado.", 401);
         }

@@ -1,22 +1,14 @@
 import { Request, Response, NextFunction } from "express";
 import { AuthService } from "../model/Auth/AuthService";
 import { AppError } from "../errors/AppError";
+import { Role } from "../../generated/prisma/client";
+import { JwtPayloadCustom } from "../types/jwt";
 
 const authService = new AuthService();
 
-export interface AuthenticatedRequest extends Request {
-    user?: {
-        id: number;
-        role: string;
-        email?: string;
-    };
-}
+export interface AuthenticatedRequest extends Request {}
 
-export function authMiddleware(
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-) {
+export function authMiddleware(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
@@ -34,7 +26,8 @@ export function authMiddleware(
 
         req.user = {
             id: Number(decoded.sub),
-            role: (decoded as any).role,
+            email: decoded.email,
+            role: decoded.role as Role, // ✔ agora o tipo está correto
         };
 
         return next();
