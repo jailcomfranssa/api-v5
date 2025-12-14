@@ -2,13 +2,8 @@
 import { prisma } from "../../lib/prisma";
 import { FuncionarioCadastro } from "../../../generated/prisma/client";
 import { Decimal } from "@prisma/client/runtime/client";
+import { FindAllOptions } from "../../types/pagination";
 
-export interface FindAllOptions {
-    skip?: number;
-    take?: number;
-    where?: any;
-    orderBy?: any;
-}
 
 export type FuncionarioUpdateData = {
     cpf?: string;

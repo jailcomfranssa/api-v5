@@ -6,3 +6,10 @@ export interface PaginationQuery {
     orderBy: string;
     order: "asc" | "desc";
 }
+
+export interface FindAllOptions {
+    skip?: number;
+    take?: number;
+    where?: any;
+    orderBy?: any;
+}
