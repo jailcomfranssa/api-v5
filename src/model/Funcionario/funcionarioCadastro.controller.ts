@@ -21,7 +21,7 @@ export class FuncionarioCadastroController {
         }
 
         const result = await service.create(authUser, data);
-        return res.status(201).json(result);
+        return res.status(201).json(result );
     });
 
     // 🔹 Buscar cadastro pelo ID
@@ -92,14 +92,6 @@ export class FuncionarioCadastroController {
     delete = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
         const authUser = req.user!;
         const id = Number(req.params.id);
-
-        if (authUser.role !== "ADMIN") {
-            throw new AppError(
-                "Apenas administradores podem deletar funcionários.",
-                403
-            );
-        }
-
         await service.delete(authUser, id);
         return res.status(204).send();
     });

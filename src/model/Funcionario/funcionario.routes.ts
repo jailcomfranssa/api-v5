@@ -68,7 +68,7 @@ router.delete(
     "/:id",
     validateRequest({ params: idParamSchema }),
     authMiddleware,
-    authorize("ADMIN"), // <- regra aplicada aqui
+    authorize("ADMIN", "FUNCIONARIO"), // <- regra aplicada aqui
     controller.delete
 );
 

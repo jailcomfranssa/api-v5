@@ -175,12 +175,19 @@ export class FuncionarioCadastroService {
 
     // 🔹 Deletar cadastro (somente ADMIN)
     async delete(user: AuthUser, id: number) {
-        const cadastro = await this.repository.findById(id);
-        if (!cadastro) throw new AppError("Cadastro não encontrado.", 404);
+        const funcionario = await this.repository.findById(id);
 
-        if (user.role !== "ADMIN") {
+        if (!funcionario) {
+            throw new AppError("Funcionario nao encontrado.", 404);
+        }
+
+        const isAdmin = user.role === "ADMIN";
+        const isOwner =
+            user.role === "FUNCIONARIO" && funcionario.userId === user.id;
+
+        if (!isAdmin && !isOwner) {
             throw new AppError(
-                "Apenas administradores podem deletar funcionários.",
+                " Vocé nao tem permissão para deletar este cadastro.",
                 403
             );
         }
