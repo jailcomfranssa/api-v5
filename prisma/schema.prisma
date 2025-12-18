@@ -58,10 +58,29 @@ model FuncionarioCadastro {
   userId         Int      @unique
   user           User     @relation("UserToFuncionario", fields: [userId], references: [id], onDelete: Cascade)
 
+  //compra N:1
+  compras         Compra[]
+
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   @@map("funcionarios")
+}
+
+model Compra{
+  id             Int      @id @default(autoincrement())
+  data_compra    DateTime
+  valor          Decimal  @db.Decimal(10, 2)
+
+  //funcionario 1:N
+  funcionario    FuncionarioCadastro@relation(fields: [funcionarioId], references: [id], onDelete: Restrict) //-> não excluir funcionário com compras registradas 
+  funcionarioId  Int
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("compras")
+
 }
 
 enum Role {
@@ -72,3 +91,5 @@ enum Role {
 
 
 //npx tsc --noEmit
+//npx prisma migrate dev --name <nome>
+//npx prisma generate
