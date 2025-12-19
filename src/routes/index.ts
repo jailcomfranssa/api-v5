@@ -11,6 +11,6 @@ rootRoutes.use("/users", userRouter);
 rootRoutes.use("/auth", authRoutes);
 rootRoutes.use("/funcionario", funcionarioRoutes);
 rootRoutes.use("/cliente", clienteRoutes);
-rootRoutes.use("/fornecedor", fornecedorRoutes);
+rootRoutes.use("/fornecedores", fornecedorRoutes);
 
 export default rootRoutes;
