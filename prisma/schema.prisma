@@ -73,13 +73,36 @@ model Compra{
   valor          Decimal  @db.Decimal(10, 2)
 
   //funcionario 1:N
-  funcionario    FuncionarioCadastro@relation(fields: [funcionarioId], references: [id], onDelete: Restrict) //-> não excluir funcionário com compras registradas 
+  funcionario    FuncionarioCadastro @relation(fields: [funcionarioId], references: [id], onDelete: Restrict) //-> não excluir funcionário com compras registradas 
   funcionarioId  Int
+
+  //fornecedor 1:N
+  fornecedor Fornecedor @relation(fields: [fornecedorId], references: [id], onDelete: Restrict)
+  fornecedorId Int
+
+  @@index([fornecedorId])
+  @@index([funcionarioId])
 
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   @@map("compras")
+
+}
+
+model Fornecedor{
+  id             Int      @id @default(autoincrement())
+  nome           String
+  cnpj           String   @unique
+  telefone       String
+  email          String   @unique
+  //compra N:1
+  compras         Compra[]
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("fornecedores")
 
 }
 
