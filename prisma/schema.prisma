@@ -106,6 +106,17 @@ model Fornecedor{
 
 }
 
+model Categoria{
+  id             Int      @id @default(autoincrement())
+  nome           String
+  descricao      String
+  status         Boolean  @default(true)
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+}
+
 enum Role {
   ADMIN
   FUNCIONARIO
