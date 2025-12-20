@@ -10,6 +10,10 @@ import { funcionarioPaths } from "./paths/funcionario.paths";
 import { fornecedorSchema } from "./components/fornecedor.schema";
 import { fornecedorPaths } from "./paths/fornecedor.paths";
 
+import { CategoriaSchemas } from "./components/categoria.components";
+import { CategoriaPaths } from "./paths/categoria.paths";
+
+
 
 
 export const swaggerDocs = {
@@ -31,7 +35,8 @@ export const swaggerDocs = {
         ...authPaths,
         ...userPaths,
         ...funcionarioPaths,
-        ...fornecedorPaths
+        ...fornecedorPaths,
+        ...CategoriaPaths
     },
 
     // COMPONENTES
@@ -47,7 +52,8 @@ export const swaggerDocs = {
             ...userSchema,
             ...authSchema,
             ...funcionarioSchema,
-            ...fornecedorSchema
+            ...fornecedorSchema,
+            ...CategoriaSchemas
         },
     },
 };
