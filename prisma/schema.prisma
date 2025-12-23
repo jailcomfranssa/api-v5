@@ -98,6 +98,7 @@ model Fornecedor{
   email          String   @unique
   //compra N:1
   compras         Compra[]
+  produto         Produto[]
 
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -112,15 +113,46 @@ model Categoria{
   descricao      String
   status         Boolean  @default(true)
 
+  produto         Produto[]
+
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+}
+
+model Produto{
+  id             Int      @id @default(autoincrement())
+  nome           String
+  descricao      String
+  preco          Decimal  @db.Decimal(10, 2)
+  data_validade  DateTime
+
+  fornecedor Fornecedor @relation(fields: [fornecedorId], references: [id], onDelete: Restrict)
+  fornecedorId Int
+
+  categoria      Categoria @relation(fields: [categoriaId], references: [id], onDelete: Restrict) 
+  categoriaId    Int
+
+  medida         Medida
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+
+  @@map("produto")
 }
 
 enum Role {
   ADMIN
   FUNCIONARIO
   CLIENTE
+}
+
+enum Medida {
+  KG
+  LITRO
+  METRO
+  UNIDADE
 }
 
 

@@ -13,8 +13,9 @@ import { fornecedorPaths } from "./paths/fornecedor.paths";
 import { CategoriaSchemas } from "./components/categoria.components";
 import { CategoriaPaths } from "./paths/categoria.paths";
 
-
-
+import { ProdutoSchemas } from "./components/produto.schemas";
+import { ProdutoParameters } from "./parameters/produto.parameters";
+import { ProdutoPaths } from "./paths/produto.paths";
 
 export const swaggerDocs = {
     openapi: "3.0.0",
@@ -36,7 +37,8 @@ export const swaggerDocs = {
         ...userPaths,
         ...funcionarioPaths,
         ...fornecedorPaths,
-        ...CategoriaPaths
+        ...CategoriaPaths,
+        ...ProdutoPaths,
     },
 
     // COMPONENTES
@@ -53,7 +55,11 @@ export const swaggerDocs = {
             ...authSchema,
             ...funcionarioSchema,
             ...fornecedorSchema,
-            ...CategoriaSchemas
+            ...CategoriaSchemas,
+            ...ProdutoSchemas,
+        },
+        parameters: {
+            ...ProdutoParameters,
         },
     },
 };
