@@ -126,6 +126,7 @@ model Produto{
   descricao      String
   preco          Decimal  @db.Decimal(10, 2)
   data_validade  DateTime
+  total          Int      @default(0)
 
   fornecedor Fornecedor @relation(fields: [fornecedorId], references: [id], onDelete: Restrict)
   fornecedorId Int
@@ -133,13 +134,34 @@ model Produto{
   categoria      Categoria @relation(fields: [categoriaId], references: [id], onDelete: Restrict) 
   categoriaId    Int
 
+  estoque        Estoque[]
+
   medida         Medida
 
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-
   @@map("produto")
+}
+
+model Estoque {
+
+  id              Int      @id @default(autoincrement())
+
+  tipo_movimento  MOVIMENTO
+  quantidade      Int
+  data_movimento  DateTime
+  origem_destino  String
+  observacoes     String
+
+  produto         Produto @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  produtoId       Int
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+    @@map("estoque")
+
 }
 
 enum Role {
@@ -154,6 +176,12 @@ enum Medida {
   METRO
   UNIDADE
 }
+
+enum MOVIMENTO {
+  ENTRADA
+  SAIDA
+}
+
 
 
 //npx tsc --noEmit

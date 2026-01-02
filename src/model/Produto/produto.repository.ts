@@ -183,4 +183,13 @@ export class ProdutoRepository {
             },
         });
     }
+    async findUnique(id: number) {
+        return prisma.produto.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                total: true,
+            },
+        });
+    }
 }

@@ -6,6 +6,7 @@ import clienteRoutes from "../model/Cliente/cliente.routes";
 import fornecedorRoutes from "../model/Fornecedor/fornecedor.routes";
 import catetegoriaRoutes from "../model/Categoria/categoria.routes";
 import produtoRoutes from "../model/Produto/produto.routes";
+import estoqueRoutes from "../model/Estoque/estoque.routes";
 
 const rootRoutes = Router();
 
@@ -16,5 +17,6 @@ rootRoutes.use("/cliente", clienteRoutes);
 rootRoutes.use("/fornecedores", fornecedorRoutes);
 rootRoutes.use("/categorias", catetegoriaRoutes);
 rootRoutes.use("/produtos", produtoRoutes);
+rootRoutes.use("/estoques", estoqueRoutes);
 
 export default rootRoutes;
